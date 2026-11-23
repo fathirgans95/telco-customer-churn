@@ -19,7 +19,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# Custom CSS: Pink Muda Pastel / Sakura Girly + Efek Shimmer, Float & Soft Glow
 st.markdown("""
 <style>
     @keyframes floatSoft {
@@ -138,7 +137,6 @@ st.markdown("""
         box-shadow: 0 6px 18px rgba(244, 114, 182, 0.22);
     }
 
-    /* Tab Navigasi Pastel Pink */
     button[data-baseweb="tab"] {
         color: #9d174d !important;
         font-weight: 700 !important;
@@ -150,7 +148,6 @@ st.markdown("""
         border-bottom-color: #f472b6 !important;
     }
 
-    /* Tombol Utama Pastel Pink Shimmer */
     div.stButton > button[kind="primary"] {
         background: linear-gradient(120deg, #f472b6, #fb7185, #f9a8d4, #f472b6);
         background-size: 300% 300%;
@@ -173,7 +170,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Tema Grafik Matplotlib Pink Muda Lembut
 plt.rcParams.update({
     "figure.facecolor": "#fff7fa",
     "axes.facecolor": "#fff7fa",
@@ -217,7 +213,6 @@ def load_assets():
 
 log_model, rf_model, scaler, model_columns, X_test, y_test = load_assets()
 
-# Header Banner Pink Muda
 st.markdown("""
 <div class="top-banner">
     <div class="badge-pill">🎀 TELCO CHURN AI • SAKURA PASTEL EDITION (IDR)</div>
@@ -234,7 +229,6 @@ tab_pred, tab_eval, tab_method = st.tabs([
     "🎀 Metodologi",
 ])
 
-# ================= TAB 1: PREDICTION LAB =================
 with tab_pred:
     left_col, right_col = st.columns([1.05, 1.25], gap="large")
 
@@ -290,9 +284,9 @@ with tab_pred:
                 step=100000,
             )
 
-        st.caption(
-            f"Tagihan: **Rp {monthly_charges_idr:,.0f}/bln** • Total: **Rp {total_charges_idr:,.0f}**".replace(",", ".")
-        )
+        monthly_fmt = f"Rp {monthly_charges_idr:,.0f}".replace(",", ".")
+        total_fmt = f"Rp {total_charges_idr:,.0f}".replace(",", ".")
+        st.caption(f"Tagihan: **{monthly_fmt}/bln** • Total: **{total_fmt}**")
 
         run_btn = st.button("🎀 Jalankan Prediksi Churn", type="primary")
         st.markdown("</div>", unsafe_allow_html=True)
@@ -380,7 +374,6 @@ with tab_pred:
         st.pyplot(fig_pred)
         st.markdown("</div>", unsafe_allow_html=True)
 
-# ================= TAB 2: EVALUASI MODEL =================
 with tab_eval:
     y_pred_log = log_model.predict(X_test)
     y_prob_log = log_model.predict_proba(X_test)[:, 1]
@@ -421,11 +414,17 @@ with tab_eval:
     st.pyplot(fig)
     st.markdown("</div>", unsafe_allow_html=True)
 
-# ================= TAB 3: METODOLOGI =================
 with tab_method:
     st.markdown('<div class="panel-card">', unsafe_allow_html=True)
     st.markdown("### 🎀 Alur Pemrosesan & Konversi Mata Uang")
     col_a, col_b, col_c = st.columns(3)
     with col_a:
         st.markdown("**1. Preprocessing Data**")
-        st.caption("
+        st.caption("Konversi `TotalCharges` ke numerik, hapus baris kosong, encoding fitur kategorikal, dan standarisasi fitur numerik (`StandardScaler`).")
+    with col_b:
+        st.markdown("**2. Konversi Rupiah (`Rp`)**")
+        st.caption("Input tagihan bulanan dan total tagihan dalam Rupiah dibagi `16.000` (`1 USD = Rp16.000`) sebelum masuk ke `scaler.transform()` agar skala tetap selaras dengan data latih.")
+    with col_c:
+        st.markdown("**3. Klasifikasi Churn**")
+        st.caption("Melatih model *Logistic Regression* dan *Random Forest* dengan pembagian data *train-test split* stratified (80:20).")
+    st.markdown("</div>", unsafe_allow_html=True)
