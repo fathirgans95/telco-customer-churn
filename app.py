@@ -19,6 +19,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
+# Custom CSS: Pink Muda Pastel + Semua Teks Berwarna Pink Tua Pekat (Kontras Tinggi)
 st.markdown("""
 <style>
     @keyframes floatSoft {
@@ -41,7 +42,49 @@ st.markdown("""
 
     .stApp {
         background: linear-gradient(160deg, #fff5f8 0%, #ffe4ee 48%, #ffd6e7 100%);
-        color: #5c1d3b;
+        color: #831843;
+    }
+
+    /* Paksa semua heading, label input, caption, dan teks Streamlit jadi pink tua pekat */
+    .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp p, .stApp span, .stApp label, .stApp div {
+        color: #831843;
+    }
+
+    .stApp [data-testid="stCaptionContainer"],
+    .stApp [data-testid="stCaptionContainer"] * {
+        color: #9d174d !important;
+    }
+
+    .stApp [data-testid="stWidgetLabel"],
+    .stApp [data-testid="stWidgetLabel"] * {
+        color: #831843 !important;
+        font-weight: 700 !important;
+    }
+
+    .stApp [data-testid="stMetricLabel"],
+    .stApp [data-testid="stMetricLabel"] * {
+        color: #9d174d !important;
+        font-weight: 700 !important;
+    }
+
+    .stApp [data-testid="stMetricValue"],
+    .stApp [data-testid="stMetricValue"] * {
+        color: #be185d !important;
+        font-weight: 800 !important;
+    }
+
+    /* Kotak input & selectbox bernuansa pink muda dengan teks pink tua */
+    .stApp [data-baseweb="select"] > div,
+    .stApp [data-baseweb="input"] > div,
+    .stApp input,
+    .stApp textarea {
+        background-color: #fff0f6 !important;
+        color: #831843 !important;
+        border-color: #f472b6 !important;
+    }
+
+    .stApp [data-baseweb="select"] span {
+        color: #831843 !important;
     }
 
     .block-container {
@@ -51,8 +94,8 @@ st.markdown("""
     }
 
     .top-banner {
-        background: linear-gradient(120deg, rgba(255, 255, 255, 0.9), rgba(255, 228, 238, 0.92), rgba(255, 240, 246, 0.92));
-        border: 2px solid #f9a8d4;
+        background: linear-gradient(120deg, #fff7fa, #ffe4ee, #ffd6e7);
+        border: 2px solid #f472b6;
         border-radius: 26px;
         padding: 22px 28px;
         margin-bottom: 20px;
@@ -61,51 +104,51 @@ st.markdown("""
 
     .badge-pill {
         display: inline-block;
-        background: linear-gradient(90deg, #fbcfe8, #fde2e4);
-        color: #9d174d;
-        border: 1px solid #f472b6;
+        background: linear-gradient(90deg, #fbcfe8, #f9a8d4);
+        color: #831843 !important;
+        border: 1.5px solid #ec4899;
         padding: 4px 14px;
         border-radius: 999px;
         font-size: 12px;
-        font-weight: 700;
+        font-weight: 800;
         margin-bottom: 8px;
         animation: floatSoft 3.2s infinite ease-in-out;
     }
 
     .panel-card {
-        background: rgba(255, 250, 252, 0.9);
-        border: 1.5px solid #f9a8d4;
+        background: rgba(255, 247, 250, 0.94);
+        border: 1.5px solid #f472b6;
         border-radius: 24px;
         padding: 22px;
         margin-bottom: 16px;
-        box-shadow: 0 10px 26px rgba(236, 72, 153, 0.12);
+        box-shadow: 0 10px 26px rgba(236, 72, 153, 0.14);
         transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
     }
 
     .panel-card:hover {
         transform: translateY(-3px);
-        border-color: #f472b6;
-        box-shadow: 0 14px 32px rgba(236, 72, 153, 0.22);
+        border-color: #ec4899;
+        box-shadow: 0 14px 32px rgba(236, 72, 153, 0.24);
     }
 
     .metric-box {
-        background: linear-gradient(145deg, #fff0f6, #ffe4ef);
-        border: 1.5px solid #f9a8d4;
+        background: linear-gradient(145deg, #fff0f6, #fbcfe8);
+        border: 1.5px solid #f472b6;
         border-radius: 20px;
         padding: 15px 18px;
         margin-bottom: 12px;
-        box-shadow: 0 6px 16px rgba(244, 114, 182, 0.14);
+        box-shadow: 0 6px 16px rgba(244, 114, 182, 0.16);
         transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
 
     .metric-box:hover {
         transform: translateY(-4px) scale(1.01);
-        box-shadow: 0 10px 22px rgba(236, 72, 153, 0.24);
+        box-shadow: 0 10px 22px rgba(236, 72, 153, 0.26);
     }
 
     .metric-label {
         font-size: 12px;
-        color: #9d174d;
+        color: #9d174d !important;
         margin-bottom: 4px;
         font-weight: 700;
     }
@@ -117,55 +160,63 @@ st.markdown("""
 
     .status-churn {
         background: linear-gradient(90deg, #ffe4e6, #fecdd3);
-        border: 1.5px solid #fb7185;
-        color: #9f1239;
+        border: 1.5px solid #f43f5e;
+        color: #881337 !important;
         border-radius: 18px;
         padding: 15px 18px;
         font-weight: 700;
         margin-bottom: 16px;
-        box-shadow: 0 6px 18px rgba(251, 113, 133, 0.2);
+        box-shadow: 0 6px 18px rgba(251, 113, 133, 0.22);
     }
 
     .status-stay {
         background: linear-gradient(90deg, #fce7f3, #fbcfe8);
-        border: 1.5px solid #f472b6;
-        color: #831843;
+        border: 1.5px solid #ec4899;
+        color: #831843 !important;
         border-radius: 18px;
         padding: 15px 18px;
         font-weight: 700;
         margin-bottom: 16px;
-        box-shadow: 0 6px 18px rgba(244, 114, 182, 0.22);
+        box-shadow: 0 6px 18px rgba(244, 114, 182, 0.24);
     }
 
-    button[data-baseweb="tab"] {
+    /* Tab Navigasi Pink Tua di Atas Pink Muda */
+    button[data-baseweb="tab"],
+    button[data-baseweb="tab"] * {
         color: #9d174d !important;
         font-weight: 700 !important;
         border-radius: 14px 14px 0 0 !important;
     }
-    button[data-baseweb="tab"][aria-selected="true"] {
-        color: #db2777 !important;
-        background: rgba(255, 255, 255, 0.75) !important;
-        border-bottom-color: #f472b6 !important;
+    button[data-baseweb="tab"][aria-selected="true"],
+    button[data-baseweb="tab"][aria-selected="true"] * {
+        color: #be185d !important;
+        background: #fff0f6 !important;
+        border-bottom-color: #db2777 !important;
+    }
+
+    /* Tombol Utama Pink Muda dengan Teks Pink Tua Pekat */
+    div.stButton > button[kind="primary"],
+    div.stButton > button[kind="primary"] * {
+        background: linear-gradient(120deg, #fbcfe8, #f9a8d4, #f472b6, #fbcfe8);
+        background-size: 300% 300%;
+        animation: shimmerMove 4.5s ease infinite;
+        color: #831843 !important;
+        border: 2px solid #db2777;
+        border-radius: 999px;
+        font-weight: 800 !important;
+        letter-spacing: 0.4px;
+        box-shadow: 0 8px 22px rgba(236, 72, 153, 0.35);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     div.stButton > button[kind="primary"] {
-        background: linear-gradient(120deg, #f472b6, #fb7185, #f9a8d4, #f472b6);
-        background-size: 300% 300%;
-        animation: shimmerMove 4.5s ease infinite;
-        color: #ffffff;
-        border: 2px solid #ffffff;
-        border-radius: 999px;
         padding: 11px 22px;
-        font-weight: 800;
-        letter-spacing: 0.4px;
         width: 100%;
-        box-shadow: 0 8px 22px rgba(244, 114, 182, 0.45);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     div.stButton > button[kind="primary"]:hover {
         transform: translateY(-3px) scale(1.015);
-        box-shadow: 0 12px 28px rgba(236, 72, 153, 0.6);
+        box-shadow: 0 12px 28px rgba(219, 39, 119, 0.5);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -173,11 +224,11 @@ st.markdown("""
 plt.rcParams.update({
     "figure.facecolor": "#fff7fa",
     "axes.facecolor": "#fff7fa",
-    "axes.edgecolor": "#f9a8d4",
+    "axes.edgecolor": "#ec4899",
     "axes.labelcolor": "#831843",
     "xtick.color": "#9d174d",
     "ytick.color": "#9d174d",
-    "text.color": "#5c1d3b",
+    "text.color": "#831843",
 })
 
 
@@ -217,7 +268,7 @@ st.markdown("""
 <div class="top-banner">
     <div class="badge-pill">🎀 TELCO CHURN AI • SAKURA PASTEL EDITION (IDR)</div>
     <h2 style="margin:0; font-size:28px; font-weight:800; color:#831843;">🌸 Prediksi Pelanggan Berhenti (Telco Churn)</h2>
-    <p style="margin:6px 0 0 0; color:#9d174d; font-size:14px;">
+    <p style="margin:6px 0 0 0; color:#9d174d; font-size:14px; font-weight:500;">
         Simulator prediksi churn pelanggan telekomunikasi berbasis Machine Learning dengan input &amp; tampilan Rupiah (1 USD = Rp16.000).
     </p>
 </div>
@@ -343,20 +394,20 @@ with tab_pred:
         k1, k2 = st.columns(2)
         with k1:
             st.markdown(
-                f'<div class="metric-box"><div class="metric-label">Peluang Bertahan (No)</div><div class="metric-val" style="color:#db2777;">{prob_stay:.1f}%</div></div>',
+                f'<div class="metric-box"><div class="metric-label">Peluang Bertahan (No)</div><div class="metric-val" style="color:#be185d;">{prob_stay:.1f}%</div></div>',
                 unsafe_allow_html=True,
             )
         with k2:
             st.markdown(
-                f'<div class="metric-box"><div class="metric-label">Peluang Churn (Yes)</div><div class="metric-val" style="color:#f43f5e;">{prob_churn:.1f}%</div></div>',
+                f'<div class="metric-box"><div class="metric-label">Peluang Churn (Yes)</div><div class="metric-val" style="color:#db2777;">{prob_churn:.1f}%</div></div>',
                 unsafe_allow_html=True,
             )
 
         fig_pred, ax_pred = plt.subplots(figsize=(6.2, 3.0))
         labels = ["Bertahan (No)", "Berisiko Churn (Yes)"]
         values = [prob_stay, prob_churn]
-        colors = ["#f9a8d4", "#fb7185"]
-        bars = ax_pred.barh(labels, values, color=colors, height=0.48, edgecolor="#ec4899", linewidth=1.2)
+        colors = ["#f472b6", "#db2777"]
+        bars = ax_pred.barh(labels, values, color=colors, height=0.48, edgecolor="#831843", linewidth=1.1)
         ax_pred.set_xlim(0, 112)
         ax_pred.set_xlabel("Probabilitas (%)")
         ax_pred.set_title("Distribusi Probabilitas Pelanggan", fontsize=11, fontweight="bold", color="#831843")
