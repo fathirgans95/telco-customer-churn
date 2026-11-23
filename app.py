@@ -8,112 +8,175 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, confusion_matrix, roc_auc_score, precision_score, recall_score
+from sklearn.metrics import accuracy_score, confusion_matrix, roc_auc_score
 
 KURS_IDR = 16000  # 1 USD = Rp16.000
 
 st.set_page_config(
-    page_title="Telco Churn AI | Prediksi Pelanggan",
-    page_icon="📡",
+    page_title="Telco Churn AI | Pink Edition",
+    page_icon="🌸",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-# Gaya visual gelap modern menyerupai dashboard Gradio di video
+# Custom CSS: Dominan Pink + Efek Glow, Glassmorphism & Animasi Hover/Pulse
 st.markdown("""
 <style>
-    .stApp {
-        background: radial-gradient(circle at top left, #161b2e 0%, #0b0f19 55%, #070a12 100%);
-        color: #f1f5f9;
+    @keyframes pulseGlow {
+        0% { box-shadow: 0 0 18px rgba(236, 72, 153, 0.25), inset 0 0 12px rgba(244, 114, 182, 0.08); }
+        50% { box-shadow: 0 0 32px rgba(236, 72, 153, 0.48), inset 0 0 18px rgba(244, 114, 182, 0.16); }
+        100% { box-shadow: 0 0 18px rgba(236, 72, 153, 0.25), inset 0 0 12px rgba(244, 114, 182, 0.08); }
     }
+
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .stApp {
+        background: radial-gradient(circle at 15% 15%, #3b0a2a 0%, #1d0718 45%, #0f050d 100%);
+        color: #fdf2f8;
+    }
+
     .block-container {
         padding-top: 1.5rem;
         padding-bottom: 2.5rem;
         max-width: 1280px;
     }
+
     .top-banner {
-        background: rgba(17, 24, 39, 0.85);
-        border: 1px solid rgba(148, 163, 184, 0.18);
-        border-radius: 16px;
-        padding: 18px 24px;
-        margin-bottom: 18px;
+        background: linear-gradient(135deg, rgba(80, 14, 55, 0.85), rgba(40, 10, 32, 0.92));
+        border: 1px solid rgba(244, 114, 182, 0.45);
+        border-radius: 18px;
+        padding: 20px 26px;
+        margin-bottom: 20px;
+        backdrop-filter: blur(12px);
+        animation: pulseGlow 4s infinite ease-in-out;
     }
+
     .badge-pill {
         display: inline-block;
-        background: rgba(99, 102, 241, 0.18);
-        color: #a5b4fc;
-        border: 1px solid rgba(99, 102, 241, 0.35);
-        padding: 3px 10px;
+        background: linear-gradient(90deg, rgba(236, 72, 153, 0.28), rgba(244, 63, 94, 0.28));
+        color: #f9a8d4;
+        border: 1px solid rgba(244, 114, 182, 0.6);
+        padding: 4px 12px;
         border-radius: 999px;
         font-size: 12px;
-        font-weight: 600;
+        font-weight: 700;
+        letter-spacing: 0.5px;
         margin-bottom: 8px;
+        box-shadow: 0 0 12px rgba(236, 72, 153, 0.35);
     }
+
     .panel-card {
-        background: rgba(15, 23, 42, 0.88);
-        border: 1px solid rgba(148, 163, 184, 0.16);
-        border-radius: 16px;
-        padding: 20px;
+        background: rgba(38, 10, 30, 0.78);
+        border: 1px solid rgba(244, 114, 182, 0.28);
+        border-radius: 18px;
+        padding: 22px;
         margin-bottom: 16px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+        transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
     }
+
+    .panel-card:hover {
+        border-color: rgba(244, 114, 182, 0.65);
+        box-shadow: 0 10px 34px rgba(236, 72, 153, 0.22);
+    }
+
     .metric-box {
-        background: rgba(30, 41, 59, 0.65);
-        border: 1px solid rgba(148, 163, 184, 0.15);
-        border-radius: 12px;
-        padding: 14px 16px;
-        margin-bottom: 10px;
+        background: linear-gradient(145deg, rgba(65, 16, 48, 0.75), rgba(35, 9, 27, 0.85));
+        border: 1px solid rgba(244, 114, 182, 0.35);
+        border-radius: 14px;
+        padding: 15px 18px;
+        margin-bottom: 12px;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
+
+    .metric-box:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(236, 72, 153, 0.35);
+    }
+
     .metric-label {
         font-size: 12px;
-        color: #94a3b8;
+        color: #f9a8d4;
         margin-bottom: 4px;
+        font-weight: 500;
     }
+
     .metric-val {
-        font-size: 26px;
-        font-weight: 700;
-        color: #f8fafc;
+        font-size: 28px;
+        font-weight: 800;
+        text-shadow: 0 0 14px rgba(244, 114, 182, 0.45);
     }
+
     .status-churn {
-        background: rgba(239, 68, 68, 0.14);
-        border: 1px solid rgba(239, 68, 68, 0.45);
-        color: #fca5a5;
-        border-radius: 12px;
-        padding: 14px 16px;
+        background: linear-gradient(90deg, rgba(225, 29, 72, 0.25), rgba(190, 24, 93, 0.25));
+        border: 1px solid rgba(251, 113, 133, 0.7);
+        color: #fecdd3;
+        border-radius: 14px;
+        padding: 15px 18px;
         font-weight: 600;
-        margin-bottom: 14px;
+        margin-bottom: 16px;
+        box-shadow: 0 0 20px rgba(225, 29, 72, 0.3);
     }
+
     .status-stay {
-        background: rgba(16, 185, 129, 0.14);
-        border: 1px solid rgba(16, 185, 129, 0.45);
-        color: #6ee7b7;
-        border-radius: 12px;
-        padding: 14px 16px;
+        background: linear-gradient(90deg, rgba(236, 72, 153, 0.22), rgba(217, 70, 239, 0.22));
+        border: 1px solid rgba(244, 114, 182, 0.7);
+        color: #fbcfe8;
+        border-radius: 14px;
+        padding: 15px 18px;
         font-weight: 600;
-        margin-bottom: 14px;
+        margin-bottom: 16px;
+        box-shadow: 0 0 20px rgba(236, 72, 153, 0.3);
     }
+
+    /* Styling Tab Navigasi Pink */
+    button[data-baseweb="tab"] {
+        color: #f9a8d4 !important;
+        font-weight: 600 !important;
+    }
+    button[data-baseweb="tab"][aria-selected="true"] {
+        color: #ffffff !important;
+        border-bottom-color: #ec4899 !important;
+        text-shadow: 0 0 10px rgba(236, 72, 153, 0.8);
+    }
+
+    /* Tombol Utama Pink Gradient + Efek Hover Terangkat */
     div.stButton > button[kind="primary"] {
-        background: linear-gradient(90deg, #4f46e5, #6366f1);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        padding: 10px 18px;
-        font-weight: 600;
+        background: linear-gradient(270deg, #ec4899, #f43f5e, #d946ef, #ec4899);
+        background-size: 300% 300%;
+        animation: gradientShift 5s ease infinite;
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 12px;
+        padding: 11px 20px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
         width: 100%;
+        box-shadow: 0 4px 18px rgba(236, 72, 153, 0.45);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
+
     div.stButton > button[kind="primary"]:hover {
-        background: linear-gradient(90deg, #4338ca, #4f46e5);
+        transform: translateY(-2px) scale(1.01);
+        box-shadow: 0 8px 26px rgba(236, 72, 153, 0.75);
     }
 </style>
 """, unsafe_allow_html=True)
 
+# Tema Grafik Matplotlib Bernuansa Pink Gelap
 plt.rcParams.update({
-    "figure.facecolor": "#0f172a",
-    "axes.facecolor": "#0f172a",
-    "axes.edgecolor": "#334155",
-    "axes.labelcolor": "#cbd5e1",
-    "xtick.color": "#94a3b8",
-    "ytick.color": "#94a3b8",
-    "text.color": "#f1f5f9",
+    "figure.facecolor": "#1d0718",
+    "axes.facecolor": "#1d0718",
+    "axes.edgecolor": "#831843",
+    "axes.labelcolor": "#fbcfe8",
+    "xtick.color": "#f9a8d4",
+    "ytick.color": "#f9a8d4",
+    "text.color": "#fdf2f8",
 })
 
 
@@ -149,30 +212,30 @@ def load_assets():
 
 log_model, rf_model, scaler, model_columns, X_test, y_test = load_assets()
 
-# Header atas
+# Header Banner Pink
 st.markdown("""
 <div class="top-banner">
-    <div class="badge-pill">TELCO CHURN AI • RUPIAH (IDR)</div>
-    <h2 style="margin:0; font-size:28px; font-weight:700;">📡 Prediksi Pelanggan Berhenti (Telco Churn)</h2>
-    <p style="margin:6px 0 0 0; color:#94a3b8; font-size:14px;">
+    <div class="badge-pill">🌸 TELCO CHURN AI • PINK GLOW EDITION (IDR)</div>
+    <h2 style="margin:0; font-size:28px; font-weight:800; color:#fdf2f8;">💖 Prediksi Pelanggan Berhenti (Telco Churn)</h2>
+    <p style="margin:6px 0 0 0; color:#f9a8d4; font-size:14px;">
         Simulator prediksi churn pelanggan telekomunikasi berbasis Machine Learning dengan input &amp; tampilan Rupiah (1 USD = Rp16.000).
     </p>
 </div>
 """, unsafe_allow_html=True)
 
 tab_pred, tab_eval, tab_method = st.tabs([
-    "🎛️ Prediction Lab",
+    "💖 Prediction Lab",
     "📊 Evaluasi Model",
-    "🧭 Metodologi",
+    "✨ Metodologi",
 ])
 
-# ================= TAB 1: PREDICTION LAB (KIRI INPUT, KANAN HASIL) =================
+# ================= TAB 1: PREDICTION LAB =================
 with tab_pred:
     left_col, right_col = st.columns([1.05, 1.25], gap="large")
 
     with left_col:
         st.markdown('<div class="panel-card">', unsafe_allow_html=True)
-        st.markdown("### Parameter Pelanggan")
+        st.markdown("### 🎛️ Parameter Pelanggan")
         st.caption("Atur profil layanan dan tagihan dalam Rupiah lalu jalankan prediksi.")
 
         model_choice = st.radio(
@@ -226,10 +289,9 @@ with tab_pred:
             f"Tagihan: **Rp {monthly_charges_idr:,.0f}/bln** • Total: **Rp {total_charges_idr:,.0f}**".replace(",", ".")
         )
 
-        run_btn = st.button("Jalankan Prediksi Churn", type="primary")
+        run_btn = st.button("✨ Jalankan Prediksi Churn", type="primary")
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # Hitung prediksi (default langsung tampil agar halaman langsung hidup seperti dashboard)
     monthly_usd = monthly_charges_idr / KURS_IDR
     total_usd = total_charges_idr / KURS_IDR
 
@@ -266,40 +328,40 @@ with tab_pred:
 
     with right_col:
         st.markdown('<div class="panel-card">', unsafe_allow_html=True)
-        st.markdown(f"### Hasil Prediksi ({model_choice})")
+        st.markdown(f"### 🔮 Hasil Prediksi ({model_choice})")
 
         if pred == 1:
             st.markdown(
-                f'<div class="status-churn">⚠️ Berisiko Churn (Yes) — Estimasi probabilitas berhenti sebesar {prob_churn:.1f}%.</div>',
+                f'<div class="status-churn">🚨 Berisiko Churn (Yes) — Estimasi probabilitas berhenti sebesar {prob_churn:.1f}%.</div>',
                 unsafe_allow_html=True,
             )
         else:
             st.markdown(
-                f'<div class="status-stay">✅ Cenderung Bertahan (No) — Estimasi probabilitas churn hanya {prob_churn:.1f}%.</div>',
+                f'<div class="status-stay">💖 Cenderung Bertahan (No) — Estimasi probabilitas churn hanya {prob_churn:.1f}%.</div>',
                 unsafe_allow_html=True,
             )
 
         k1, k2 = st.columns(2)
         with k1:
             st.markdown(
-                f'<div class="metric-box"><div class="metric-label">Peluang Bertahan (No)</div><div class="metric-val" style="color:#34d399;">{prob_stay:.1f}%</div></div>',
+                f'<div class="metric-box"><div class="metric-label">Peluang Bertahan (No)</div><div class="metric-val" style="color:#f472b6;">{prob_stay:.1f}%</div></div>',
                 unsafe_allow_html=True,
             )
         with k2:
             st.markdown(
-                f'<div class="metric-box"><div class="metric-label">Peluang Churn (Yes)</div><div class="metric-val" style="color:#f87171;">{prob_churn:.1f}%</div></div>',
+                f'<div class="metric-box"><div class="metric-label">Peluang Churn (Yes)</div><div class="metric-val" style="color:#fb7185;">{prob_churn:.1f}%</div></div>',
                 unsafe_allow_html=True,
             )
 
         fig_pred, ax_pred = plt.subplots(figsize=(6.2, 3.0))
         labels = ["Bertahan (No)", "Berisiko Churn (Yes)"]
         values = [prob_stay, prob_churn]
-        colors = ["#10b981", "#ef4444"]
-        bars = ax_pred.barh(labels, values, color=colors, height=0.48)
+        colors = ["#f472b6", "#e11d48"]
+        bars = ax_pred.barh(labels, values, color=colors, height=0.48, edgecolor="#fbcfe8", linewidth=0.8)
         ax_pred.set_xlim(0, 112)
         ax_pred.set_xlabel("Probabilitas (%)")
-        ax_pred.set_title("Distribusi Probabilitas Pelanggan", fontsize=11, fontweight="bold")
-        ax_pred.grid(axis="x", linestyle="--", alpha=0.2)
+        ax_pred.set_title("Distribusi Probabilitas Pelanggan", fontsize=11, fontweight="bold", color="#fdf2f8")
+        ax_pred.grid(axis="x", linestyle="--", alpha=0.25, color="#f472b6")
         for bar, val in zip(bars, values):
             ax_pred.text(
                 val + 1.8,
@@ -307,7 +369,7 @@ with tab_pred:
                 f"{val:.1f}%",
                 va="center",
                 fontweight="bold",
-                color="#f8fafc",
+                color="#fdf2f8",
             )
         plt.tight_layout()
         st.pyplot(fig_pred)
@@ -321,7 +383,7 @@ with tab_eval:
     y_prob_rf = rf_model.predict_proba(X_test)[:, 1]
 
     st.markdown('<div class="panel-card">', unsafe_allow_html=True)
-    st.markdown("### Ringkasan Performa Model pada Data Uji")
+    st.markdown("### 📊 Ringkasan Performa Model pada Data Uji")
 
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("LogReg Accuracy", f"{accuracy_score(y_test, y_pred_log)*100:.2f}%")
@@ -335,20 +397,20 @@ with tab_eval:
         cm,
         annot=True,
         fmt="d",
-        cmap="Blues",
+        cmap="RdPu",
         ax=axes[0],
         xticklabels=["No (0)", "Yes (1)"],
         yticklabels=["No (0)", "Yes (1)"],
     )
-    axes[0].set_title("Confusion Matrix — Logistic Regression")
+    axes[0].set_title("Confusion Matrix — Logistic Regression", color="#fdf2f8")
 
     feat_imp = (
         pd.Series(rf_model.feature_importances_, index=model_columns)
         .sort_values(ascending=False)
         .head(10)
     )
-    sns.barplot(x=feat_imp.values, y=feat_imp.index, ax=axes[1], palette="magma")
-    axes[1].set_title("Top 10 Faktor Paling Berpengaruh terhadap Churn")
+    sns.barplot(x=feat_imp.values, y=feat_imp.index, ax=axes[1], palette="flare")
+    axes[1].set_title("Top 10 Faktor Paling Berpengaruh terhadap Churn", color="#fdf2f8")
 
     plt.tight_layout()
     st.pyplot(fig)
@@ -357,7 +419,7 @@ with tab_eval:
 # ================= TAB 3: METODOLOGI =================
 with tab_method:
     st.markdown('<div class="panel-card">', unsafe_allow_html=True)
-    st.markdown("### Alur Pemrosesan & Konversi Mata Uang")
+    st.markdown("### ✨ Alur Pemrosesan & Konversi Mata Uang")
     col_a, col_b, col_c = st.columns(3)
     with col_a:
         st.markdown("**1. Preprocessing Data**")
